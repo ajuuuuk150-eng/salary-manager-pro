@@ -1,88 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salary Manager</title>
 
-<style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-body{
-background:#f5f5f5;
-padding:20px;
-}
+<title>Salary Manager Pro</title>
 
-.container{
-max-width:500px;
-margin:auto;
-}
-
-.card{
-background:#fff;
-padding:15px;
-margin-bottom:15px;
-border-radius:12px;
-box-shadow:0 2px 8px rgba(0,0,0,.15);
-}
-
-h1{
-text-align:center;
-color:#1565C0;
-margin-bottom:20px;
-}
-
-h2{
-margin-bottom:10px;
-font-size:18px;
-}
-
-input,select{
-width:100%;
-padding:12px;
-margin-top:8px;
-margin-bottom:10px;
-border:1px solid #ccc;
-border-radius:8px;
-font-size:16px;
-}
-
-button{
-width:100%;
-padding:12px;
-background:#1565C0;
-color:white;
-border:none;
-border-radius:8px;
-font-size:16px;
-cursor:pointer;
-}
-
-button:hover{
-background:#0D47A1;
-}
-
-.total{
-font-size:26px;
-font-weight:bold;
-color:green;
-}
-
-ul{
-list-style:none;
-padding:0;
-}
-
-li{
-padding:8px;
-border-bottom:1px solid #eee;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -90,264 +16,113 @@ border-bottom:1px solid #eee;
 
 <div class="container">
 
-<h1>💰 Salary Manager</h1>
-
-<div class="card">
-<h2>Saldo</h2>
-<div class="total" id="saldo">Rp 0</div>
-</div>
+<h1>💰 Salary Manager Pro</h1>
 
 <div class="card">
 
-<h2>Tambah Gaji</h2>
+<label>Bulan</label>
 
-<input
-type="number"
-id="gajiInput"
-placeholder="Masukkan Gaji">
+<select id="filterBulan">
 
-<button onclick="simpanGaji()">
-Simpan Gaji
-</button>
+<option value="2026-07">Juli 2026</option>
 
-</div>
+<option value="2026-08">Agustus 2026</option>
 
-<div class="card">
+<option value="2026-09">September 2026</option>
 
-<h2>Tambah Lembur</h2>
+<option value="2026-10">Oktober 2026</option>
 
-<select id="jam">
+<option value="2026-11">November 2026</option>
 
-<option value="1">1 Jam</option>
-
-<option value="1.5">1.5 Jam</option>
-
-<option value="3.5">3.5 Jam</option>
-
-<option value="4.5">4.5 Jam</option>
+<option value="2026-12">Desember 2026</option>
 
 </select>
 
-<button onclick="simpanLembur()">
+</div>
+
+<div class="grid">
+
+<div class="card total">
+
+<h3>💰 Gaji</h3>
+
+<h2 id="totalGaji">Rp0</h2>
+
+</div>
+
+<div class="card total">
+
+<h3>🕒 Lembur</h3>
+
+<h2 id="totalLembur">Rp0</h2>
+
+</div>
+
+<div class="card total">
+
+<h3>💸 Pengeluaran</h3>
+
+<h2 id="totalKeluar">Rp0</h2>
+
+</div>
+
+<div class="card total saldo">
+
+<h3>💵 Saldo</h3>
+
+<h2 id="saldo">Rp0</h2>
+
+</div>
+
+</div>
+
+<div class="menu">
+
+<button onclick="bukaMenu('gaji')">
+
+Tambah Gaji
+
+</button>
+
+<button onclick="bukaMenu('lembur')">
+
 Tambah Lembur
+
+</button>
+
+<button onclick="bukaMenu('keluar')">
+
+Tambah Pengeluaran
+
+</button>
+
+<button onclick="resetSemua()">
+
+Reset Data
+
 </button>
 
 </div>
 
-<div class="card">
-
-<h2>Tambah Pengeluaran</h2>
-
-<input
-type="text"
-id="nama"
-placeholder="Nama Pengeluaran">
-
-<input
-type="number"
-id="nominal"
-placeholder="Nominal">
-
-<button onclick="simpanPengeluaran()">
-Simpan Pengeluaran
-</button>
+<div id="formArea">
 
 </div>
 
 <div class="card">
 
-<h2>Ringkasan</h2>
+<h2>Riwayat Bulan Ini</h2>
 
-<p>💰 Gaji :
-<b id="gaji">Rp 0</b></p>
+<div id="riwayat">
 
-<br>
-
-<p>🕒 Lembur :
-<b id="lembur">Rp 0</b></p>
-
-<br>
-
-<p>💸 Pengeluaran :
-<b id="keluar">Rp 0</b></p>
+Belum ada data
 
 </div>
 
-<div class="card">
-
-<h2>Riwayat</h2>
-
-<ul id="riwayat"></ul>
+</div>
 
 </div>
 
-<script>
-
-    const TARIF = 44000;
-
-const FAKTOR = {
-  "1": 1.5,
-  "1.5": 2.5,
-  "3.5": 5.5,
-  "4.5": 7.5
-};
-
-let data = JSON.parse(localStorage.getItem("salaryData"));
-
-if (!data) {
-  data = {
-    gaji: 0,
-    lembur: 0,
-    keluar: 0,
-    riwayat: []
-  };
-}
-
-function rupiah(angka) {
-  return "Rp " + Number(angka).toLocaleString("id-ID");
-}
-
-function simpanData() {
-  localStorage.setItem(
-    "salaryData",
-    JSON.stringify(data)
-  );
-}
-
-function tampilkan() {
-
-  document.getElementById("gaji").innerHTML =
-    rupiah(data.gaji);
-
-  document.getElementById("lembur").innerHTML =
-    rupiah(data.lembur);
-
-  document.getElementById("keluar").innerHTML =
-    rupiah(data.keluar);
-
-  document.getElementById("saldo").innerHTML =
-    rupiah(
-      data.gaji +
-      data.lembur -
-      data.keluar
-    );
-
-  let html = "";
-
-  data.riwayat.forEach(function(item){
-
-    html += "<li>" + item + "</li>";
-
-  });
-
-  document.getElementById("riwayat").innerHTML = html;
-
-}
-
-function simpanGaji(){
-
-  const nilai =
-  Number(
-    document.getElementById("gajiInput").value
-  );
-
-  if(nilai<=0){
-
-    alert("Masukkan gaji");
-
-    return;
-
-  }
-
-  data.gaji += nilai;
-
-  data.riwayat.unshift(
-    "💰 Gaji + " +
-    rupiah(nilai)
-  );
-
-  simpanData();
-
-  tampilkan();
-
-  document.getElementById("gajiInput").value = "";
-
-}
-
-function simpanLembur(){
-
-  const jam = document.getElementById("jam").value;
-
-  const hasil = FAKTOR[jam] * TARIF;
-
-  data.lembur += hasil;
-
-  data.riwayat.unshift(
-    "🕒 Lembur " + jam +
-    " Jam = " + rupiah(hasil)
-  );
-
-  simpanData();
-
-  tampilkan();
-
-}
-
-function simpanPengeluaran(){
-
-  const nama =
-  document.getElementById("nama").value.trim();
-
-  const nominal =
-  Number(document.getElementById("nominal").value);
-
-  if(nama==="" || nominal<=0){
-
-    alert("Masukkan nama dan nominal pengeluaran");
-
-    return;
-
-  }
-
-  data.keluar += nominal;
-
-  data.riwayat.unshift(
-    "💸 " + nama +
-    " - " + rupiah(nominal)
-  );
-
-  simpanData();
-
-  tampilkan();
-
-  document.getElementById("nama").value="";
-
-  document.getElementById("nominal").value="";
-
-}
-
-function resetData(){
-
-  if(confirm("Yakin ingin menghapus semua data?")){
-
-    localStorage.removeItem("salaryData");
-
-    data={
-      gaji:0,
-      lembur:0,
-      keluar:0,
-      riwayat:[]
-    };
-
-    tampilkan();
-
-  }
-
-}
-
-tampilkan();
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
