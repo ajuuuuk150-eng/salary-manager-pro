@@ -28,47 +28,54 @@ background:#fff;
 padding:15px;
 margin-bottom:15px;
 border-radius:12px;
-box-shadow:0 2px 10px rgba(0,0,0,.1);
+box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 
 h1{
 text-align:center;
+color:#1565C0;
 margin-bottom:20px;
-color:#0d6efd;
 }
 
 h2{
-font-size:18px;
 margin-bottom:10px;
+font-size:18px;
 }
 
 input,select{
 width:100%;
-padding:10px;
+padding:12px;
 margin-top:8px;
+margin-bottom:10px;
 border:1px solid #ccc;
 border-radius:8px;
+font-size:16px;
 }
 
 button{
 width:100%;
 padding:12px;
-margin-top:10px;
-background:#0d6efd;
+background:#1565C0;
 color:white;
 border:none;
 border-radius:8px;
 font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#0D47A1;
 }
 
 .total{
-font-size:24px;
+font-size:26px;
 font-weight:bold;
 color:green;
 }
 
 ul{
 list-style:none;
+padding:0;
 }
 
 li{
@@ -87,12 +94,12 @@ border-bottom:1px solid #eee;
 
 <div class="card">
 <h2>Saldo</h2>
-<div class="total" id="saldo">Rp0</div>
+<div class="total" id="saldo">Rp 0</div>
 </div>
 
 <div class="card">
 
-<h2>Input Gaji</h2>
+<h2>Tambah Gaji</h2>
 
 <input
 type="number"
@@ -107,7 +114,7 @@ Simpan Gaji
 
 <div class="card">
 
-<h2>Lembur</h2>
+<h2>Tambah Lembur</h2>
 
 <select id="jam">
 
@@ -129,9 +136,10 @@ Tambah Lembur
 
 <div class="card">
 
-<h2>Pengeluaran</h2>
+<h2>Tambah Pengeluaran</h2>
 
 <input
+type="text"
 id="nama"
 placeholder="Nama Pengeluaran">
 
@@ -150,14 +158,18 @@ Simpan Pengeluaran
 
 <h2>Ringkasan</h2>
 
-<p>Gaji :
-<b id="gaji">Rp0</b></p>
+<p>💰 Gaji :
+<b id="gaji">Rp 0</b></p>
 
-<p>Lembur :
-<b id="lembur">Rp0</b></p>
+<br>
 
-<p>Pengeluaran :
-<b id="keluar">Rp0</b></p>
+<p>🕒 Lembur :
+<b id="lembur">Rp 0</b></p>
+
+<br>
+
+<p>💸 Pengeluaran :
+<b id="keluar">Rp 0</b></p>
 
 </div>
 
@@ -169,157 +181,173 @@ Simpan Pengeluaran
 
 </div>
 
-<// ===============================
-// Salary Manager v2
-// ===============================
+<script>
 
-const TARIF = 44000;
+    const TARIF = 44000;
 
 const FAKTOR = {
-    "1":1.5,
-    "1.5":2.5,
-    "3.5":5.5,
-    "4.5":7.5
+  "1": 1.5,
+  "1.5": 2.5,
+  "3.5": 5.5,
+  "4.5": 7.5
 };
 
-let data = JSON.parse(localStorage.getItem("salaryData")) || {
-    gaji:0,
-    lembur:0,
-    keluar:0,
-    riwayat:[]
-};
+let data = JSON.parse(localStorage.getItem("salaryData"));
 
-function rupiah(n){
-    return "Rp " + Number(n).toLocaleString("id-ID");
+if (!data) {
+  data = {
+    gaji: 0,
+    lembur: 0,
+    keluar: 0,
+    riwayat: []
+  };
 }
 
-function simpanDatabase(){
-    localStorage.setItem("salaryData",JSON.stringify(data));
+function rupiah(angka) {
+  return "Rp " + Number(angka).toLocaleString("id-ID");
 }
 
-function tampilkan(){
+function simpanData() {
+  localStorage.setItem(
+    "salaryData",
+    JSON.stringify(data)
+  );
+}
 
-    document.getElementById("gaji").innerHTML =
-        rupiah(data.gaji);
+function tampilkan() {
 
-    document.getElementById("lembur").innerHTML =
-        rupiah(data.lembur);
+  document.getElementById("gaji").innerHTML =
+    rupiah(data.gaji);
 
-    document.getElementById("keluar").innerHTML =
-        rupiah(data.keluar);
+  document.getElementById("lembur").innerHTML =
+    rupiah(data.lembur);
 
-    document.getElementById("saldo").innerHTML =
-        rupiah(data.gaji + data.lembur - data.keluar);
+  document.getElementById("keluar").innerHTML =
+    rupiah(data.keluar);
 
-    const list =
-        document.getElementById("riwayat");
+  document.getElementById("saldo").innerHTML =
+    rupiah(
+      data.gaji +
+      data.lembur -
+      data.keluar
+    );
 
-    list.innerHTML="";
+  let html = "";
 
-    data.riwayat.forEach(function(item){
+  data.riwayat.forEach(function(item){
 
-        list.innerHTML +=
-        "<li>"+item+"</li>";
+    html += "<li>" + item + "</li>";
 
-    });
+  });
+
+  document.getElementById("riwayat").innerHTML = html;
 
 }
 
 function simpanGaji(){
 
-    let nilai =
-    Number(document.getElementById("gajiInput").value);
+  const nilai =
+  Number(
+    document.getElementById("gajiInput").value
+  );
 
-    if(!nilai){
-        alert("Masukkan gaji");
-        return;
-    }
+  if(nilai<=0){
 
-    data.gaji += nilai;
+    alert("Masukkan gaji");
 
-    data.riwayat.unshift(
-        "💰 Gaji + " + rupiah(nilai)
-    );
+    return;
 
-    simpanDatabase();
+  }
 
-    tampilkan();
+  data.gaji += nilai;
 
-    document.getElementById("gajiInput").value="";
+  data.riwayat.unshift(
+    "💰 Gaji + " +
+    rupiah(nilai)
+  );
+
+  simpanData();
+
+  tampilkan();
+
+  document.getElementById("gajiInput").value = "";
 
 }
 
 function simpanLembur(){
 
-    let jam =
-    document.getElementById("jam").value;
+  const jam = document.getElementById("jam").value;
 
-    let hasil =
-    FAKTOR[jam] * TARIF;
+  const hasil = FAKTOR[jam] * TARIF;
 
-    data.lembur += hasil;
+  data.lembur += hasil;
 
-    data.riwayat.unshift(
-        "🕒 Lembur "
-        + jam +
-        " Jam = "
-        + rupiah(hasil)
-    );
+  data.riwayat.unshift(
+    "🕒 Lembur " + jam +
+    " Jam = " + rupiah(hasil)
+  );
 
-    simpanDatabase();
+  simpanData();
 
-    tampilkan();
+  tampilkan();
 
 }
 
-  function simpanPengeluaran(){
+function simpanPengeluaran(){
 
-    let nama =
-    document.getElementById("nama").value.trim();
+  const nama =
+  document.getElementById("nama").value.trim();
 
-    let nominal =
-    Number(document.getElementById("nominal").value);
+  const nominal =
+  Number(document.getElementById("nominal").value);
 
-    if(nama==="" || nominal<=0){
-        alert("Lengkapi data pengeluaran");
-        return;
-    }
+  if(nama==="" || nominal<=0){
 
-    data.keluar += nominal;
+    alert("Masukkan nama dan nominal pengeluaran");
 
-    data.riwayat.unshift(
-        "💸 " + nama + " - " + rupiah(nominal)
-    );
+    return;
 
-    simpanDatabase();
+  }
 
-    tampilkan();
+  data.keluar += nominal;
 
-    document.getElementById("nama").value="";
-    document.getElementById("nominal").value="";
+  data.riwayat.unshift(
+    "💸 " + nama +
+    " - " + rupiah(nominal)
+  );
+
+  simpanData();
+
+  tampilkan();
+
+  document.getElementById("nama").value="";
+
+  document.getElementById("nominal").value="";
+
 }
 
 function resetData(){
 
-    if(confirm("Hapus semua data?")){
+  if(confirm("Yakin ingin menghapus semua data?")){
 
-        data={
-            gaji:0,
-            lembur:0,
-            keluar:0,
-            riwayat:[]
-        };
+    localStorage.removeItem("salaryData");
 
-        simpanDatabase();
+    data={
+      gaji:0,
+      lembur:0,
+      keluar:0,
+      riwayat:[]
+    };
 
-        tampilkan();
-    }
+    tampilkan();
+
+  }
 
 }
 
 tampilkan();
 
-  </script>
+</script>
 
 </body>
-</html>    
+</html>
