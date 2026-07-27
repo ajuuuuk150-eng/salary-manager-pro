@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Salary Manager Pro</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+
+background:#F5F7FA;
+
+padding:20px;
+
+}
+
+.container{
+
+max-width:500px;
+
+margin:auto;
+
+}
+
+.card{
+
+background:white;
+
+padding:15px;
+
+margin-bottom:15px;
+
+border-radius:12px;
+
+box-shadow:0 3px 10px rgba(0,0,0,.1);
+
+}
+
+h1{
+
+text-align:center;
+
+margin-bottom:20px;
+
+color:#1565C0;
+
+}
+
+h2{
+
+margin-bottom:10px;
+
+font-size:18px;
+
+}
+
+input,select{
+
+width:100%;
+
+padding:10px;
+
+margin-top:8px;
+
+border:1px solid #ccc;
+
+border-radius:8px;
+
+}
+
+button{
+
+width:100%;
+
+padding:12px;
+
+margin-top:10px;
+
+background:#1565C0;
+
+color:white;
+
+border:none;
+
+border-radius:8px;
+
+font-size:16px;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+background:#0D47A1;
+
+}
+
+.total{
+
+font-size:22px;
+
+font-weight:bold;
+
+color:green;
+
+}
+
+ul{
+
+list-style:none;
+
+margin-top:10px;
+
+}
+
+li{
+
+padding:8px;
+
+border-bottom:1px solid #eee;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>💰 Salary Manager</h1>
+
+<div class="card">
+
+<h2>Saldo Saat Ini</h2>
+
+<div class="total" id="saldo">
+
+Rp0
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Tambah Gaji</h2>
+
+<input id="gajiInput"
+
+type="number"
+
+placeholder="Masukkan gaji">
+
+<button onclick="tambahGaji()">
+
+Simpan Gaji
+
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>Tambah Lembur</h2>
+
+<select id="jam">
+
+<option value="1">1 Jam</option>
+
+<option value="1.5">1.5 Jam</option>
+
+<option value="3.5">3.5 Jam</option>
+
+<option value="4.5">4.5 Jam</option>
+
+</select>
+
+<button onclick="tambahLembur()">
+
+Hitung Lembur
+
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>Pengeluaran</h2>
+
+<input id="nama"
+
+placeholder="Nama Pengeluaran">
+
+<input id="nominal"
+
+type="number"
+
+placeholder="Nominal">
+
+<button onclick="tambahPengeluaran()">
+
+Simpan
+
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>Ringkasan</h2>
+
+<p>💰 Gaji :
+<span id="gaji">Rp0</span></p>
+
+<p>🕒 Lembur :
+<span id="lembur">Rp0</span></p>
+
+<p>💸 Pengeluaran :
+<span id="pengeluaran">Rp0</span></p>
+
+</div>
+
+<div class="card">
+
+<h2>Riwayat</h2>
+
+<ul id="riwayat"></ul>
+
+</div>
+
+<script>
+
+<script>
+
+let totalGaji = 0;
+let totalLembur = 0;
+let totalPengeluaran = 0;
+
+const tarif = 44000;
+
+const faktorLembur = {
+  "1": 1.5,
+  "1.5": 2.5,
+  "3.5": 5.5,
+  "4.5": 7.5
+};
+
+function rupiah(angka){
+    return "Rp " + angka.toLocaleString("id-ID");
+}
+
+function updateDashboard(){
+
+    document.getElementById("gaji").innerHTML =
+    rupiah(totalGaji);
+
+    document.getElementById("lembur").innerHTML =
+    rupiah(totalLembur);
+
+    document.getElementById("pengeluaran").innerHTML =
+    rupiah(totalPengeluaran);
+
+    document.getElementById("saldo").innerHTML =
+    rupiah(totalGaji + totalLembur - totalPengeluaran);
+
+}
+
+function tambahRiwayat(teks){
+
+    let li=document.createElement("li");
+
+    li.innerHTML=teks;
+
+    document.getElementById("riwayat").prepend(li);
+
+}
+
+function tambahGaji(){
+
+    let nilai = Number(
+    document.getElementById("gajiInput").value);
+
+    if(nilai<=0){
+
+        alert("Masukkan nominal gaji");
+
+        return;
+
+    }
+
+    totalGaji += nilai;
+
+    tambahRiwayat(
+    "💰 Gaji + " + rupiah(nilai));
+
+    document.getElementById("gajiInput").value="";
+
+    updateDashboard();
+
+}
+
+function tambahLembur(){
+
+    let jam =
+    document.getElementById("jam").value;
+
+    let faktor =
+    faktorLembur[jam];
+
+    let hasil =
+    faktor * tarif;
+
+    totalLembur += hasil;
+
+    tambahRiwayat(
+
+    "🕒 Lembur "
+
+    + jam +
+
+    " Jam = "
+
+    + rupiah(hasil)
+
+    );
+
+    updateDashboard();
+
+}
+
+function tambahPengeluaran(){
+
+    let nama =
+    document.getElementById("nama").value;
+
+    let nominal =
+    Number(document.getElementById("nominal").value);
+
+    if(nama=="" || nominal<=0){
+
+        alert("Lengkapi data");
+
+        return;
+
+    }
+
+    totalPengeluaran += nominal;
+
+    tambahRiwayat(
+
+    "💸 "
+
+    + nama +
+
+    " - "
+
+    + rupiah(nominal)
+
+    );
+
+    document.getElementById("nama").value="";
+
+    document.getElementById("nominal").value="";
+
+    updateDashboard();
+
+}
+
+updateDashboard();
+
+</script>
+
+</script>
+
+</div>
+
+</body>
+
+</html>
